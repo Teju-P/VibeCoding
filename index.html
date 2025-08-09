@@ -11,9 +11,10 @@
 <body>
 
     <nav>
-        <a href="#" class="nav-link active" data-target="dashboard-section">Dashboard</a>
-        <a href="#" class="nav-link" data-target="techniques-section">Study Techniques</a>
-        <a href="#" class="nav-link" data-target="music-section">Concentration Music</a>
+        <a href="#" class="nav-link active" data-target="dashboard-section"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="#" class="nav-link" data-target="techniques-section"><i class="fas fa-clock"></i> Timers</a>
+        <a href="#" class="nav-link" data-target="music-section"><i class="fas fa-music"></i> Music</a>
+        <a href="#" class="nav-link" data-target="stickynotes-section"><i class="fas fa-sticky-note"></i> Notes</a>
     </nav>
 
     <main>
@@ -45,9 +46,9 @@
         <div id="techniques-section" class="content-section" style="display: none;">
             <h1>Study Techniques</h1>
             <div class="techniques-container">
-                <div class="technique" data-timer-id="pomodoro" data-initial-time="1500">
+                <div class="technique" data-timer-id="pomodoro" data-initial-time="1500" data-break-time="300">
                     <div class="technique-info">
-                        <h2>Pomodoro Technique</h2>
+                        <h2>Pomodoro Technique <span class="timer-status">(Work)</span></h2>
                         <ul>
                             <li><strong>Work:</strong> 25 minutes</li>
                             <li><strong>Break:</strong> 5 minutes</li>
@@ -64,9 +65,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="technique" data-timer-id="52-17" data-initial-time="3120">
+                <div class="technique" data-timer-id="52-17" data-initial-time="3120" data-break-time="1020">
                     <div class="technique-info">
-                        <h2>52/17 Method</h2>
+                        <h2>52/17 Method <span class="timer-status">(Work)</span></h2>
                         <ul>
                             <li>Work for 52 minutes, then take a 17-minute break.</li>
                         </ul>
@@ -81,9 +82,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="technique" data-timer-id="ultradian" data-initial-time="5400">
+                <div class="technique" data-timer-id="ultradian" data-initial-time="5400" data-break-time="1200">
                     <div class="technique-info">
-                        <h2>Ultradian Rhythm Technique</h2>
+                        <h2>Ultradian Rhythm Technique <span class="timer-status">(Work)</span></h2>
                         <ul>
                             <li>Work in 90-minute cycles followed by 20-minute breaks.</li>
                         </ul>
@@ -98,6 +99,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -105,10 +107,10 @@
             <h1>Concentration Music</h1>
 
             <div class="music-nav">
-                <a href="#" class="music-nav-link active" data-music-target="binaural-beats">Binaural Beats</a>
-                <a href="#" class="music-nav-link" data-music-target="relaxing-piano">Relaxing Piano</a>
-                <a href="#" class="music-nav-link" data-music-target="relaxing-violin">Relaxing Violin</a>
-                <a href="#" class="music-nav-link" data-music-target="custom-mode">Custom Mode</a>
+                <a href="#" class="music-nav-link active" data-music-target="binaural-beats"><i class="fas fa-wave-square"></i> Binaural Beats</a>
+                <a href="#" class="music-nav-link" data-music-target="relaxing-piano"><i class="fas fa-music"></i> Relaxing Piano</a>
+                <a href="#" class="music-nav-link" data-music-target="relaxing-violin"><i class="fas fa-feather-alt"></i> Relaxing Violin</a>
+                <a href="#" class="music-nav-link" data-music-target="custom-mode"><i class="fas fa-edit"></i> Custom Mode</a>
             </div>
 
             <div id="binaural-beats" class="music-content">
@@ -141,6 +143,16 @@
                 <div class="video-container" id="custom-video-container">
                     <!-- Iframe will be inserted here by JS -->
                 </div>
+            </div>
+        </div>
+
+        <div id="stickynotes-section" class="content-section" style="display: none;">
+            <div class="notes-header">
+                <h1>Sticky Notes</h1>
+                <button id="add-note-btn"><i class="fas fa-plus"></i> Add Note</button>
+            </div>
+            <div id="notes-container">
+                <!-- Sticky notes will be dynamically added here -->
             </div>
         </div>
     </main>

@@ -54,11 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function setGreeting() {
         const hour = new Date().getHours();
         if (hour < 12) {
-            greetingEl.textContent = 'Good Morning,';
+            greetingEl.textContent = 'Good Morning';
         } else if (hour < 18) {
-            greetingEl.textContent = 'Good Afternoon,';
+            greetingEl.textContent = 'Good Afternoon';
         } else {
-            greetingEl.textContent = 'Good Evening,';
+            greetingEl.textContent = 'Good Evening';
             document.body.style.color = 'white';
         }
     }
@@ -218,24 +218,172 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Sticky Notes ---
+    const notesContainer = document.getElementById('notes-container');
+    const addNoteBtn = document.getElementById('add-note-btn');
+    let notes = JSON.parse(localStorage.getItem('stickynotes')) || [];
+    const noteColors = ['#ffc', '#cfc', '#ccf', '#fcc', '#cff', '#ffcf']; // Yellow, Green, Blue, Red, Cyan, Pink
+
+    function saveNotes() {
+        localStorage.setItem('stickynotes', JSON.stringify(notes));
+    }
+
+    function createNoteElement(note) {
+        const noteEl = document.createElement('div');
+        noteEl.classList.add('note');
+        noteEl.style.backgroundColor = note.color;
+
+        noteEl.innerHTML = `
+            <div class="note-header">
+                <div class="color-palette">
+                    ${noteColors.map(color => `<div class="color-swatch" style="background-color: ${color};" data-color="${color}"></div>`).join('')}
+                </div>
+                <div>
+                    <button class="note-btn bullet-btn" title="Add bullet point"><i class="fas fa-list-ul"></i></button>
+                    <button class="note-btn delete-note-btn" title="Delete note"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+            <div class="note-body">
+                <input type="text" class="note-title" placeholder="Untitled Note">
+                <textarea placeholder="Jot down your thoughts..."></textarea>
+            </div>
+        `;
+
+        // --- Event Listeners for the note ---
+        const titleInput = noteEl.querySelector('.note-title');
+        const textarea = noteEl.querySelector('textarea');
+        const deleteBtn = noteEl.querySelector('.delete-note-btn');
+        const bulletBtn = noteEl.querySelector('.bullet-btn');
+        const colorSwatches = noteEl.querySelectorAll('.color-swatch');
+
+        // Safely set values to prevent HTML injection issues from stored data
+        titleInput.value = note.title;
+        textarea.value = note.content;
+
+        // Set initial active state for bullet button
+        bulletBtn.classList.toggle('active', note.isBulletMode);
+
+        // Title update
+        titleInput.addEventListener('input', () => {
+            note.title = titleInput.value;
+            saveNotes();
+        });
+
+        // Content update
+        textarea.addEventListener('input', () => {
+            note.content = textarea.value;
+            saveNotes();
+        });
+
+        // Delete
+        deleteBtn.addEventListener('click', () => {
+            notes = notes.filter(n => n.id !== note.id);
+            saveNotes();
+            notesContainer.removeChild(noteEl);
+        });
+
+        // Bullet point
+        bulletBtn.addEventListener('click', () => {
+            // If bullet mode is currently OFF, this click will turn it ON and add the first bullet.
+            if (!note.isBulletMode) {
+                note.isBulletMode = true;
+                bulletBtn.classList.add('active');
+
+                // Insert a bullet point immediately
+                const cursorPos = textarea.selectionStart;
+                const textBefore = textarea.value.substring(0, cursorPos);
+                const textAfter = textarea.value.substring(cursorPos);
+
+                // Add a newline before the bullet unless the textarea is empty or already on a new line
+                const textToInsert = (textBefore.length === 0 || textBefore.endsWith('\n')) ? '• ' : '\n• ';
+
+                textarea.value = textBefore + textToInsert + textAfter;
+
+                // Update cursor position and save the new content
+                textarea.selectionStart = textarea.selectionEnd = cursorPos + textToInsert.length;
+                note.content = textarea.value;
+
+            } else {
+                // If bullet mode is currently ON, this click will turn it OFF.
+                note.isBulletMode = false;
+                bulletBtn.classList.remove('active');
+            }
+
+            // Save the state change (isBulletMode) and any content changes
+            saveNotes();
+            textarea.focus();
+        });
+
+        // Handle Enter key for bullet points
+        textarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && note.isBulletMode) {
+                e.preventDefault();
+                const cursorPos = textarea.selectionStart;
+                const textBefore = textarea.value.substring(0, cursorPos);
+                const textAfter = textarea.value.substring(cursorPos);
+
+                // Insert newline and bullet
+                textarea.value = textBefore + '\n• ' + textAfter;
+
+                // Update cursor position
+                textarea.selectionStart = textarea.selectionEnd = cursorPos + 3; // for \n• 
+
+                // Save the updated content
+                note.content = textarea.value;
+                saveNotes();
+            }
+        });
+        // Color change
+        colorSwatches.forEach(swatch => {
+            swatch.addEventListener('click', () => {
+                const newColor = swatch.dataset.color;
+                note.color = newColor;
+                noteEl.style.backgroundColor = newColor;
+                saveNotes();
+            });
+        });
+
+        notesContainer.appendChild(noteEl);
+    }
+
+    addNoteBtn.addEventListener('click', () => {
+        const newNote = {
+            id: Date.now(),
+            title: '',
+            content: '',
+            color: '#ffc',
+            isBulletMode: false
+        };
+        notes.push(newNote);
+        createNoteElement(newNote);
+        saveNotes();
+    });
+
     // --- Universal Timer Logic ---
     const timers = {}; // Store all timer instances
     let activeTimerId = null; // Track which timer is currently running
 
     // Factory function to create a timer instance
-    function createTimer(id, displayEl, startBtn, pauseBtn, resetBtn, initialTime) {
+    function createTimer(id, displayEl, startBtn, pauseBtn, resetBtn, workTime, breakTime, statusEl) {
         const timer = {
             id,
             displayEl,
-            initialTime,
-            timeLeft: initialTime,
+            statusEl,
+            workTime,
+            breakTime,
+            timeLeft: workTime,
             isPaused: true,
             interval: null,
+            state: 'work', // 'work' or 'break'
 
             updateDisplay() {
                 const minutes = Math.floor(this.timeLeft / 60);
                 const seconds = this.timeLeft % 60;
                 this.displayEl.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
+                if (this.statusEl) {
+                    // Capitalize the first letter of the state (Work/Break)
+                    this.statusEl.textContent = `(${this.state.charAt(0).toUpperCase() + this.state.slice(1)})`;
+                }
             },
 
             start() {
@@ -252,8 +400,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.updateDisplay();
                         if (this.timeLeft <= 0) {
                             this.stop();
-                            alert(`Timer for "${this.id}" has finished!`);
-                            this.reset();
+    
+                            if (this.state === 'work') {
+                                this.state = 'break';
+                                this.timeLeft = this.breakTime;
+                                this.updateDisplay();
+                                const breakMinutes = Math.floor(this.breakTime / 60);
+                                const breakSeconds = this.breakTime % 60;
+                                // Alert is blocking, so the next line won't run until user clicks OK
+                                alert(`Your study timer for "${this.id}" has finished. Take a break for ${breakMinutes}m ${breakSeconds}s.`);
+                                this.start(); // Automatically start the break timer
+                            } else { // state === 'break'
+                                this.reset();
+                                alert(`Your break for "${this.id}" is finished. Time to get back to work!`);
+                                this.start(); // Automatically start the work timer
+                            }
                         }
                     }, 1000);
                 }
@@ -269,7 +430,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             reset() {
                 this.pause();
-                this.timeLeft = this.initialTime;
+                this.state = 'work';
+                this.timeLeft = this.workTime;
                 this.updateDisplay();
             },
 
@@ -294,14 +456,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize technique timers
     document.querySelectorAll('.technique[data-timer-id]').forEach(techniqueEl => {
         const id = techniqueEl.dataset.timerId;
-        const initialTime = parseInt(techniqueEl.dataset.initialTime, 10);
+        const workTime = parseInt(techniqueEl.dataset.initialTime, 10);
+        const breakTime = parseInt(techniqueEl.dataset.breakTime, 10);
         const displayEl = techniqueEl.querySelector('.timer-display');
         const startBtn = techniqueEl.querySelector('.timer-start');
         const pauseBtn = techniqueEl.querySelector('.timer-pause');
         const resetBtn = techniqueEl.querySelector('.timer-reset');
+        const statusEl = techniqueEl.querySelector('.timer-status');
 
-        if (id && displayEl && startBtn && pauseBtn && resetBtn) {
-            timers[id] = createTimer(id, displayEl, startBtn, pauseBtn, resetBtn, initialTime);
+        if (id && !isNaN(workTime) && !isNaN(breakTime) && displayEl && startBtn && pauseBtn && resetBtn && statusEl) {
+            timers[id] = createTimer(id, displayEl, startBtn, pauseBtn, resetBtn, workTime, breakTime, statusEl);
         }
     });
 
@@ -311,4 +475,5 @@ document.addEventListener('DOMContentLoaded', () => {
     getQuote();
     getLocation();
     renderTodos();
+    notes.forEach(createNoteElement); // Render existing notes on load
 });

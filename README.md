@@ -54,3 +54,38 @@ To run this project locally, follow these steps:
 ## Credits
 
 This project was created as a fun and feature-rich dashboard. It utilizes several fantastic free APIs to provide its dynamic content.
+
+## 📦 Bonus: Set as New Tab Page
+
+You can set this dashboard as your default new tab page in Chrome or Edge by loading it as a browser extension.
+
+1.  **Create the `manifest.json` file:**
+    In the root of your project folder, create a file named `manifest.json` with the following content:
+
+    ```json
+    {
+      "manifest_version": 3,
+      "name": "Gen Focus",
+      "version": "1.0",
+      "description": "A personal dashboard for focus and productivity on every new tab.",
+      "chrome_url_overrides": {
+        "newtab": "index.html"
+      }
+    }
+    ```
+
+2.  **Load the extension in your browser:**
+
+    **For Google Chrome**
+    *   Open Chrome and navigate to `chrome://extensions` in the address bar.
+    *   In the top right corner, turn on the **"Developer mode"** toggle.
+    *   Click the **"Load unpacked"** button that appears.
+    *   Navigate to and select your project folder, then click "Select Folder".
+
+    **For Microsoft Edge**
+    *   Open Edge and navigate to `edge://extensions` in the address bar.
+    *   On the bottom left, turn on the **"Developer mode"** toggle.
+    *   Click the **"Load unpacked"** button that appears.
+    *   Navigate to and select your project folder, then click "Select Folder".
+
+    Now, every time you open a new tab, you'll see your Gen Focus dashboard!
