@@ -4,10 +4,44 @@
     padding: 0;
 }
 
+:root {
+    --bg-color: #333;
+    --text-color: #fff;
+    --overlay-color: rgba(0, 0, 0, 0.4);
+    --nav-bg: rgba(0, 0, 0, 0.2);
+    --nav-link-border: #fff;
+    --component-bg: rgba(0, 0, 0, 0.3);
+    --component-bg-light: rgba(0, 0, 0, 0.25);
+    --component-bg-hover: rgba(0, 0, 0, 0.4);
+    --component-border: rgba(255, 255, 255, 0.4);
+    --component-border-focus: #fff;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --icon-color: rgba(255, 255, 255, 0.7);
+    --icon-color-hover: #fff;
+    --dropdown-bg: #4a4a4a;
+}
+
+body.light-mode {
+    --bg-color: #f0f2f5;
+    --text-color: #333;
+    --overlay-color: rgba(0, 0, 0, 0.05);
+    --nav-bg: rgba(255, 255, 255, 0.5);
+    --nav-link-border: #333;
+    --component-bg: rgba(255, 255, 255, 0.7);
+    --component-bg-light: rgba(255, 255, 255, 0.6);
+    --component-bg-hover: rgba(255, 255, 255, 0.9);
+    --component-border: rgba(0, 0, 0, 0.2);
+    --component-border-focus: #000;
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    --icon-color: rgba(0, 0, 0, 0.6);
+    --icon-color-hover: #000;
+    --dropdown-bg: #ffffff;
+}
+
 body {
     font-family: 'Quicksand', sans-serif;
-    color: white;
-    background: #333 no-repeat center center/cover; /* Fallback color */
+    color: var(--text-color);
+    background: var(--bg-color) no-repeat center center/cover; /* Fallback color */
     height: 100vh;
     overflow: hidden; /* Prevents scrollbars from flicker during background load */
     backdrop-filter: blur(2px); /* Optional: adds a nice blur effect */
@@ -22,31 +56,95 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: var(--overlay-color);
     z-index: -1;
 }
 
 nav {
     display: flex;
     justify-content: center;
+    align-items: center;
     padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--nav-bg);
+    position: relative;
 }
 
 nav a {
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
     padding: 0.5rem 1rem;
     margin: 0 0.5rem;
     border-bottom: 2px solid transparent;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, color 0.3s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5em;
 }
 
 nav a:hover, nav a.active {
-    border-bottom-color: white;
+    border-bottom-color: var(--nav-link-border);
+}
+
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: calc(100% + 5px); /* Add a small gap */
+    left: 50%;
+    transform: translateY(-10px) translateX(-50%);
+    background-color: var(--dropdown-bg);
+    min-width: 220px;
+    box-shadow: 0 8px 16px 0 var(--shadow-color);
+    z-index: 100;
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    border: 1px solid var(--component-border);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) translateX(-50%);
+}
+
+#apps-dropdown-toggle {
+    /* Remove the bottom border that other nav links have on hover/active */
+    border-bottom-color: transparent !important;
+}
+
+.dropdown-arrow {
+    margin-left: 0.5em;
+    font-size: 0.8em; /* Make the arrow slightly smaller than the text */
+    display: inline-block; /* Needed for transform to work */
+    transition: transform 0.2s ease-out;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+#theme-toggle {
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--icon-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+#theme-toggle:hover {
+    color: var(--icon-color-hover);
 }
 
 /* The main container for all switchable content */
@@ -62,26 +160,209 @@ nav a:hover, nav a.active {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative; /* Establishes a positioning context for absolute children */
     overflow-y: auto;
 }
 
-#time {
-    font-size: 6rem;
-    font-weight: 500;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+.top-container {
+    /* This adds some breathing room below the weather info */
+    padding-bottom: 2rem; 
+}
+
+/* Google Search Bar Styles */
+#google-search-container {
+    position: absolute;
+    top: 2rem; /* Align with content padding */
+    right: 2rem; /* Align with content padding */
+    z-index: 10; /* Ensure it's above other content if overlap occurs */
+}
+
+#google-search-form {
+    position: relative; /* For positioning the search button */
+}
+
+#google-search-form input {
+    width: 220px; /* Slightly smaller default width */
+    padding: 0.6rem 2.5rem 0.6rem 1rem; /* Add padding-right for the icon */
+    border-radius: 25px; /* Pill shape */
+    border: 1px solid var(--component-border);
+    background-color: var(--component-bg-light);
+    color: var(--text-color);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    /* More specific transitions for better performance and control */
+    transition: all 0.3s ease-in-out;
+}
+
+#google-search-form input::placeholder {
+    color: var(--text-color);
+    opacity: 0.6;
+}
+
+/* Lighten the search bar on hover for better interactivity */
+#google-search-form input:hover {
+    background-color: var(--component-bg);
+}
+
+#google-search-form input:focus {
+    width: 280px; /* Expand on focus */
+    background-color: var(--component-bg-hover);
+    border-color: var(--component-border-focus);
+    box-shadow: 0 0 8px var(--component-border); /* Add a subtle glow */
+}
+
+/* New Search Button Styles */
+.search-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 45px;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: var(--icon-color);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+}
+
+.search-btn:hover {
+    color: var(--icon-color-hover);
+}
+
+/* Make icon white when input is focused */
+#google-search-form input:focus + .search-btn {
+    color: var(--icon-color-hover);
+}
+
+/* Dot Matrix Clock Styles */
+.dot-matrix-clock {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem; /* Space below the clock */
+}
+
+.dot-matrix-digit {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 6px;
+    width: 70px;
+    height: 100px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--component-bg); /* Off state */
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.dot.on {
+    background-color: var(--text-color); /* On state */
+    box-shadow: 0 0 6px var(--text-color);
+    transform: scale(1.1);
+}
+
+.dot-matrix-separator {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 100px; /* Match digit height */
+    padding: 0 0.5rem;
 }
 
 h1#greeting {
     font-size: 3rem;
     font-weight: 400;
     margin-bottom: 1rem;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 8px var(--shadow-color);
 }
 
 /* Weather Styles */
 #weather {
     font-size: 1.2rem;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    text-shadow: 1px 1px 4px var(--shadow-color);
+}
+
+/* New App Dropdown List Styles */
+#app-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.app-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--component-border);
+}
+
+.app-item .app-link {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    flex-grow: 1;
+}
+
+.app-item .app-link:hover {
+    color: var(--icon-color-hover);
+    text-decoration: underline;
+}
+
+.app-item-controls {
+    display: flex;
+    align-items: center;
+}
+
+.app-item .app-control-btn {
+    background: none;
+    border: none;
+    color: var(--icon-color);
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.6;
+    transition: all 0.2s;
+    padding: 0 0.25rem;
+}
+
+.app-item .edit-app-btn:hover {
+    opacity: 1;
+    color: var(--icon-color-hover);
+}
+
+.app-item .delete-app-btn:hover {
+    opacity: 1;
+    color: #ff4d4d;
+}
+
+.dropdown-add-btn {
+    width: calc(100% - 2rem);
+    margin: 1rem;
+    padding: 0.5rem;
+    border: 1px solid var(--component-border);
+    background-color: var(--component-bg-light);
+    color: var(--text-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dropdown-add-btn:hover {
+    background-color: var(--component-bg);
+    border-color: var(--component-border-focus);
 }
 
 /* To-Do List Styles */
@@ -117,26 +398,27 @@ h1#greeting {
     opacity: 0.6;
 }
 
-/* New Pastel Rainbow Colors for To-Do Items */
-#todo-list li:nth-child(6n + 1) { background-color: rgba(255, 182, 193, 0.25); } /* Pink */
-#todo-list li:nth-child(6n + 2) { background-color: rgba(255, 218, 185, 0.25); } /* Orange */
-#todo-list li:nth-child(6n + 3) { background-color: rgba(255, 255, 186, 0.25); } /* Yellow */
-#todo-list li:nth-child(6n + 4) { background-color: rgba(144, 238, 144, 0.25); } /* Green */
-#todo-list li:nth-child(6n + 5) { background-color: rgba(176, 224, 230, 0.25); } /* Powder Blue */
-#todo-list li:nth-child(6n + 6) { background-color: rgba(221, 160, 221, 0.25); } /* Violet */
+/* New Lighter Solid Colors for To-Do Items */
+/* Setting a solid background and a dark text color for better readability in both themes */
+#todo-list li:nth-child(6n + 1) { background-color: #ffcdd2; color: #333; } /* Pink */
+#todo-list li:nth-child(6n + 2) { background-color: #ffccbc; color: #333; } /* Flesh */
+#todo-list li:nth-child(6n + 3) { background-color: #fff9c4; color: #333; } /* Yellow */
+#todo-list li:nth-child(6n + 4) { background-color: #c8e6c9; color: #333; } /* Green */
+#todo-list li:nth-child(6n + 5) { background-color: #b3e5fc; color: #333; } /* Powder Blue */
+#todo-list li:nth-child(6n + 6) { background-color: #d1c4e9; color: #333; } /* Purple */
 
 /* Hover states for pastel colors */
-#todo-list li:nth-child(6n + 1):hover { background-color: rgba(255, 182, 193, 0.4); }
-#todo-list li:nth-child(6n + 2):hover { background-color: rgba(255, 218, 185, 0.4); }
-#todo-list li:nth-child(6n + 3):hover { background-color: rgba(255, 255, 186, 0.4); }
-#todo-list li:nth-child(6n + 4):hover { background-color: rgba(144, 238, 144, 0.4); }
-#todo-list li:nth-child(6n + 5):hover { background-color: rgba(176, 224, 230, 0.4); }
-#todo-list li:nth-child(6n + 6):hover { background-color: rgba(221, 160, 221, 0.4); }
+#todo-list li:nth-child(6n + 1):hover { background-color: #ef9a9a; }
+#todo-list li:nth-child(6n + 2):hover { background-color: #ffab91; }
+#todo-list li:nth-child(6n + 3):hover { background-color: #fff59d; }
+#todo-list li:nth-child(6n + 4):hover { background-color: #a5d6a7; }
+#todo-list li:nth-child(6n + 5):hover { background-color: #81d4fa; }
+#todo-list li:nth-child(6n + 6):hover { background-color: #b39ddb; }
 
 #todo-list .delete-btn {
     background: none;
     border: none;
-    color: white;
+    color: inherit; /* Inherit color from the parent li for theme consistency */
     cursor: pointer;
     font-size: 1rem;
     opacity: 0.6;
@@ -151,9 +433,9 @@ h1#greeting {
     width: 60vw;
     max-width: 350px;
     border: none;
-    border-bottom: 2px solid white;
+    border-bottom: 2px solid var(--component-border-focus);
     background: transparent;
-    color: white;
+    color: var(--text-color);
     font-size: 1.2rem;
     text-align: center;
     padding: 0.5rem;
@@ -190,7 +472,7 @@ h1#greeting {
     align-items: center;
     width: 100%; /* Make card take full width of its container */
     max-width: 800px; /* Give a max width to the cards */
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: var(--component-bg);
     border-radius: 8px;
     padding: 1.5rem;
     text-align: left;
@@ -216,7 +498,7 @@ h1#greeting {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid var(--component-border);
     padding-left: 1rem;
 }
 
@@ -227,18 +509,18 @@ h1#greeting {
 
 .technique-timer .timer-controls button {
     background: none;
-    border: 1px solid white;
-    color: white;
+    border: 1px solid var(--component-border-focus);
+    color: var(--text-color);
     border-radius: 50%;
     width: 40px;
     height: 40px;
     margin: 0 5px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
 
 .technique-timer .timer-controls button:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--component-border);
 }
 
 /* Music Section Sub-navigation */
@@ -247,12 +529,12 @@ h1#greeting {
     justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--component-border);
     padding-bottom: 1rem;
 }
 
 .music-nav a {
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
     padding: 0.5rem 1rem;
     margin: 0.25rem 0.5rem;
@@ -264,11 +546,11 @@ h1#greeting {
 }
 
 .music-nav a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--component-bg);
 }
 
 .music-nav a.active {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--component-bg-hover);
 }
 
 .music-content {
@@ -291,9 +573,9 @@ h1#greeting {
 #custom-music-input {
     width: 100%;
     max-width: 500px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
+    background: var(--component-bg);
+    border: 1px solid var(--component-border);
+    color: var(--text-color);
     padding: 0.5rem 1rem;
     border-radius: 5px;
     font-family: 'Quicksand', sans-serif;
@@ -301,9 +583,9 @@ h1#greeting {
 }
 
 #custom-music-btn {
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid white;
-    color: white;
+    background-color: var(--component-bg);
+    border: 1px solid var(--component-border-focus);
+    color: var(--text-color);
     padding: 0.5rem 1.5rem;
     border-radius: 5px;
     cursor: pointer;
@@ -311,7 +593,7 @@ h1#greeting {
 }
 
 #custom-music-btn:hover {
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: var(--component-bg-hover);
 }
 
 .video-container {
@@ -346,9 +628,9 @@ h1#greeting {
 }
 
 #add-note-btn {
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid white;
-    color: white;
+    background-color: var(--component-bg);
+    border: 1px solid var(--component-border-focus);
+    color: var(--text-color);
     padding: 0.5rem 1.5rem;
     border-radius: 5px;
     cursor: pointer;
@@ -360,7 +642,7 @@ h1#greeting {
 }
 
 #add-note-btn:hover {
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: var(--component-bg-hover);
 }
 
 #notes-container {
@@ -458,4 +740,70 @@ h1#greeting {
     font-size: 1rem;
     color: #333;
     outline: none;
+}
+
+/* App Modal Styles */
+.app-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-modal-content {
+    position: relative;
+    background-color: var(--component-bg);
+    padding: 2rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px var(--shadow-color);
+    text-align: center;
+    color: var(--text-color);
+    border: 1px solid var(--component-border);
+}
+
+.app-modal-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--icon-color);
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+#add-app-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+#add-app-form input {
+    background: var(--component-bg-light);
+    border: 1px solid var(--component-border);
+    color: var(--text-color);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    width: 350px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+}
+
+#add-app-form button {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--component-border-focus);
+    color: var(--bg-color);
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 1rem;
 }

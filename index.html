@@ -15,10 +15,29 @@
         <a href="#" class="nav-link" data-target="techniques-section"><i class="fas fa-clock"></i> Timers</a>
         <a href="#" class="nav-link" data-target="music-section"><i class="fas fa-music"></i> Music</a>
         <a href="#" class="nav-link" data-target="stickynotes-section"><i class="fas fa-sticky-note"></i> Notes</a>
+        <div class="nav-dropdown">
+            <a href="#" class="nav-link" id="apps-dropdown-toggle"><i class="fas fa-th-large"></i> Apps <span class="dropdown-arrow"><i class="fas fa-chevron-down"></i></span></a>
+            <div class="dropdown-menu" id="apps-dropdown-menu">
+                <ul id="app-list">
+                    <!-- Apps will be dynamically added here -->
+                </ul>
+                <button id="add-app-btn" class="dropdown-add-btn"><i class="fas fa-plus"></i> Add New App</button>
+            </div>
+        </div>
+        <button id="theme-toggle" title="Toggle Theme"><i class="fas fa-moon"></i></button>
     </nav>
 
     <main>
         <div id="dashboard-section" class="content-section">
+            <div id="google-search-container">
+                <form action="https://www.google.com/search" method="get" id="google-search-form" role="search">
+                    <input type="text" name="q" placeholder="Search Google..." autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
             <div class="top-container">
                 <div id="weather">
                     <i class="fas fa-cloud-sun"></i> <span id="weather-temp">--°</span> <span id="weather-city">Loading...</span>
@@ -26,7 +45,7 @@
             </div>
 
             <div class="center-container">
-                <time id="time"></time>
+                <div id="time" class="dot-matrix-clock"></div>
                 <h1 id="greeting"></h1>
                 
                 <div id="todo-container">
@@ -155,8 +174,24 @@
                 <!-- Sticky notes will be dynamically added here -->
             </div>
         </div>
+
+        <!-- Add App Modal -->
+        <div id="add-app-modal" class="app-modal" style="display: none;">
+            <div class="app-modal-content">
+                <button class="app-modal-close">&times;</button>
+                <h2 id="app-modal-title">Add a New App</h2>
+                <form id="add-app-form">
+                    <input type="hidden" id="app-edit-index" value="">
+                    <input type="text" id="app-name-input" placeholder="App Name (e.g., Gmail)" required>
+                    <input type="url" id="app-url-input" placeholder="App URL (e.g., https://mail.google.com)" required>
+                    <button type="submit">Save App</button>
+                </form>
+            </div>
+        </div>
+
     </main>
 
+    <!-- AI and Markdown Libraries -->
     <script src="script.js"></script>
 </body>
 </html>

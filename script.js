@@ -4,8 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Navigation ---
     const navLinks = document.querySelectorAll('.nav-link');
     const contentSections = document.querySelectorAll('.content-section');
-    // --- DOM Elements ---
-    const timeEl = document.getElementById('time');
     const greetingEl = document.getElementById('greeting');
     const quoteEl = document.getElementById('quote');
     const weatherTempEl = document.getElementById('weather-temp');
@@ -19,6 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             const targetId = link.dataset.target;
+
+            // If the link doesn't have a target, it's not a content switcher (e.g., Apps dropdown).
+            // Let its specific event handler manage it and do nothing here.
+            if (!targetId) return;
 
             // Update active link
             navLinks.forEach(l => l.classList.remove('active'));
@@ -38,13 +40,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Time & Greeting ---
     function showTime() {
-        const today = new Date();
-        const hour = today.getHours();
-        const min = today.getMinutes();
-        const sec = today.getSeconds();
+        const timeContainer = document.getElementById('time');
+        if (!timeContainer) return;
 
-        timeEl.innerHTML = `${addZero(hour)}<span>:</span>${addZero(min)}<span>:</span>${addZero(sec)}`;
-        setTimeout(showTime, 1000);
+        // 5x7 dot matrix patterns for numbers 0-9
+        const DOT_PATTERNS = {
+            '0': [0,1,1,1,0, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 0,1,1,1,0],
+            '1': [0,0,1,0,0, 0,1,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,1,1,1,0],
+            '2': [0,1,1,1,0, 1,0,0,0,1, 0,0,0,1,0, 0,0,1,0,0, 0,1,0,0,0, 1,0,0,0,0, 1,1,1,1,1],
+            '3': [0,1,1,1,0, 1,0,0,0,1, 0,0,1,1,0, 0,0,0,0,1, 0,0,0,0,1, 1,0,0,0,1, 0,1,1,1,0],
+            '4': [1,0,0,0,1, 1,0,0,0,1, 1,0,1,0,1, 1,1,1,1,1, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0],
+            '5': [1,1,1,1,1, 1,0,0,0,0, 1,1,1,1,0, 0,0,0,0,1, 0,0,0,0,1, 1,0,0,0,1, 0,1,1,1,0],
+            '6': [0,1,1,1,0, 1,0,0,0,0, 1,1,1,1,0, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 0,1,1,1,0],
+            '7': [1,1,1,1,1, 0,0,0,0,1, 0,0,0,1,0, 0,0,1,0,0, 0,1,0,0,0, 0,1,0,0,0, 0,1,0,0,0],
+            '8': [0,1,1,1,0, 1,0,0,0,1, 1,0,0,0,1, 0,1,1,1,0, 1,0,0,0,1, 1,0,0,0,1, 0,1,1,1,0],
+            '9': [0,1,1,1,0, 1,0,0,0,1, 1,0,0,0,1, 0,1,1,1,1, 0,0,0,0,1, 0,0,0,0,1, 0,1,1,1,0]
+        };
+
+        // Create the clock structure
+        timeContainer.innerHTML = `
+            <div class="dot-matrix-digit"></div>
+            <div class="dot-matrix-digit"></div>
+            <div class="dot-matrix-separator"><div class="dot on"></div><div class="dot on"></div></div>
+            <div class="dot-matrix-digit"></div>
+            <div class="dot-matrix-digit"></div>
+            <div class="dot-matrix-separator"><div class="dot on"></div><div class="dot on"></div></div>
+            <div class="dot-matrix-digit"></div>
+            <div class="dot-matrix-digit"></div>
+        `;
+
+        const digitElements = timeContainer.querySelectorAll('.dot-matrix-digit');
+        digitElements.forEach(digitEl => {
+            for (let i = 0; i < 35; i++) { // 5x7 grid
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                digitEl.appendChild(dot);
+            }
+        });
+
+        function updateDigit(digitEl, number) {
+            const pattern = DOT_PATTERNS[number];
+            const dots = digitEl.querySelectorAll('.dot');
+            if (pattern) {
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('on', pattern[i] === 1);
+                });
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeStr = addZero(now.getHours()) + addZero(now.getMinutes()) + addZero(now.getSeconds());
+
+            digitElements.forEach((digitEl, index) => {
+                updateDigit(digitEl, timeStr[index]);
+            });
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime(); // Initial call
     }
 
     function addZero(n) {
@@ -59,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
             greetingEl.textContent = 'Good Afternoon';
         } else {
             greetingEl.textContent = 'Good Evening';
-            document.body.style.color = 'white';
         }
     }
 
@@ -359,6 +412,148 @@ document.addEventListener('DOMContentLoaded', () => {
         saveNotes();
     });
 
+    // --- App Launcher ---
+    const appList = document.getElementById('app-list');
+    const addAppBtn = document.getElementById('add-app-btn');
+    const addAppModal = document.getElementById('add-app-modal');
+    const addAppForm = document.getElementById('add-app-form');
+    const appNameInput = document.getElementById('app-name-input');
+    const appUrlInput = document.getElementById('app-url-input');
+    const appModalTitle = document.getElementById('app-modal-title');
+    const appEditIndexInput = document.getElementById('app-edit-index');
+    const appsDropdownToggle = document.getElementById('apps-dropdown-toggle');
+    const appsDropdownMenu = document.getElementById('apps-dropdown-menu');
+    const dropdownArrow = appsDropdownToggle.querySelector('.dropdown-arrow');
+
+    let apps = JSON.parse(localStorage.getItem('apps')) || [];
+
+    function saveApps() {
+        localStorage.setItem('apps', JSON.stringify(apps));
+    }
+
+    function renderApps() {
+        appList.innerHTML = '';
+        if (apps.length === 0) {
+            appList.innerHTML = '<li style="padding: 0.5rem 1rem; opacity: 0.7;">No apps added yet.</li>';
+            return;
+        }
+        apps.forEach((app, index) => {
+            const li = document.createElement('li');
+            li.classList.add('app-item');
+            li.innerHTML = `
+                <a href="${app.url}" class="app-link" target="_blank" rel="noopener noreferrer">${app.name}</a>
+                <div class="app-item-controls">
+                    <button class="app-control-btn edit-app-btn" data-index="${index}" title="Edit ${app.name}"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="app-control-btn delete-app-btn" data-index="${index}" title="Delete ${app.name}">&times;</button>
+                </div>
+            `;
+            appList.appendChild(li);
+        });
+    }
+
+    function handleAddApp(e) {
+        e.preventDefault();
+        const name = appNameInput.value.trim();
+        let url = appUrlInput.value.trim();
+        const editIndex = appEditIndexInput.value;
+
+        if (name && url) {
+            // Ensure URL has a protocol
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+
+            if (editIndex !== '') {
+                // Editing an existing app
+                apps[parseInt(editIndex, 10)] = { name, url };
+            } else {
+                // Adding a new app
+                apps.push({ name, url });
+            }
+            saveApps();
+            renderApps();
+            addAppModal.style.display = 'none';
+        }
+    }
+
+    function deleteApp(index) {
+        apps.splice(index, 1);
+        saveApps();
+        renderApps();
+    }
+
+    function openEditAppModal(index) {
+        const app = apps[index];
+        if (!app) return;
+
+        appsDropdownMenu.classList.remove('show'); // Close the list dropdown
+
+        // Populate and show the edit modal
+        appModalTitle.textContent = 'Edit App';
+        appEditIndexInput.value = index;
+        appNameInput.value = app.name;
+        appUrlInput.value = app.url;
+        addAppModal.style.display = 'flex';
+        appNameInput.focus();
+    }
+
+    // Event Listeners
+    appsDropdownToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        appsDropdownMenu.classList.toggle('show');
+        dropdownArrow.classList.toggle('open');
+    });
+
+    addAppBtn.addEventListener('click', () => {
+        appsDropdownMenu.classList.remove('show'); // Close the apps list dropdown
+
+        // Reset form to "Add" mode before showing
+        appModalTitle.textContent = 'Add a New App';
+        appEditIndexInput.value = '';
+        addAppForm.reset();
+
+        addAppModal.style.display = 'flex';
+        appNameInput.focus();
+    });
+
+    // Close dropdown if clicking outside
+    window.addEventListener('click', (e) => {
+        if (!e.target.closest('.nav-dropdown')) {
+            appsDropdownMenu.classList.remove('show');
+            dropdownArrow.classList.remove('open');
+        }
+    });
+
+    addAppForm.addEventListener('submit', handleAddApp);
+
+    appList.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.edit-app-btn');
+        if (editBtn) {
+            const index = parseInt(editBtn.dataset.index, 10);
+            openEditAppModal(index);
+            return;
+        }
+
+        const deleteBtn = e.target.closest('.delete-app-btn');
+        if (deleteBtn) {
+            const index = parseInt(deleteBtn.dataset.index, 10);
+            deleteApp(index);
+        }
+    });
+
+    // Generic modal closing logic for the "Add App" modal
+    document.querySelectorAll('.app-modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) { // Close if clicking on the overlay
+                modal.style.display = 'none';
+            }
+        });
+        const closeBtn = modal.querySelector('.app-modal-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => modal.style.display = 'none');
+        }
+    });
+
     // --- Universal Timer Logic ---
     const timers = {}; // Store all timer instances
     let activeTimerId = null; // Track which timer is currently running
@@ -475,5 +670,31 @@ document.addEventListener('DOMContentLoaded', () => {
     getQuote();
     getLocation();
     renderTodos();
+    renderApps();
     notes.forEach(createNoteElement); // Render existing notes on load
+
+    // --- Theme Toggler ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = themeToggle.querySelector('i');
+
+    function applyTheme(theme) {
+        localStorage.setItem('theme', theme);
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            document.body.classList.remove('light-mode');
+            themeIcon.classList.replace('fa-sun', 'fa-moon');
+        }
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+    });
+
+    // Load saved theme on startup
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
 });
