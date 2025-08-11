@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gen Focus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="nav-link active" data-target="dashboard-section"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="#" class="nav-link" data-target="techniques-section"><i class="fas fa-clock"></i> Timers</a>
+        <a href="#" class="nav-link" data-target="music-section"><i class="fas fa-music"></i> Music</a>
+        <a href="#" class="nav-link" data-target="stickynotes-section"><i class="fas fa-sticky-note"></i> Notes</a>
+        <div class="nav-dropdown">
+            <a href="#" class="nav-link" id="apps-dropdown-toggle"><i class="fas fa-th-large"></i> Apps <span class="dropdown-arrow"><i class="fas fa-chevron-down"></i></span></a>
+            <div class="dropdown-menu" id="apps-dropdown-menu">
+                <ul id="app-list">
+                    <!-- Apps will be dynamically added here -->
+                </ul>
+                <button id="add-app-btn" class="dropdown-add-btn"><i class="fas fa-plus"></i> Add New App</button>
+            </div>
+        </div>
+        <button id="theme-toggle" title="Toggle Theme"><i class="fas fa-moon"></i></button>
+    </nav>
+
+    <main>
+        <div id="dashboard-section" class="content-section">
+            <div id="google-search-container">
+                <form action="https://www.google.com/search" method="get" id="google-search-form" role="search">
+                    <input type="text" name="q" placeholder="Search Google..." autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="top-container">
+                <div id="weather">
+                    <i class="fas fa-cloud-sun"></i> <span id="weather-temp">--°</span> <span id="weather-city">Loading...</span>
+                </div>
+            </div>
+
+            <div class="center-container">
+                <div id="time" class="dot-matrix-clock"></div>
+                <h1 id="greeting"></h1>
+                
+                <div id="todo-container">
+                    <h2>TODAY'S TO-DO LIST</h2>
+                    <ul id="todo-list"></ul>
+                    <form id="todo-form">
+                        <input type="text" id="todo-input" placeholder="Add a new to-do" autocomplete="off">
+                    </form>
+                </div>
+            </div>
+
+            <div class="bottom-container">
+                <p id="quote">Fetching a quote...</p>
+            </div>
+        </div>
+
+        <div id="techniques-section" class="content-section" style="display: none;">
+            <h1>Study Techniques</h1>
+            <div class="techniques-container">
+                <div class="technique" data-timer-id="pomodoro" data-initial-time="1500" data-break-time="300">
+                    <div class="technique-info">
+                        <h2>Pomodoro Technique <span class="timer-status">(Work)</span></h2>
+                        <ul>
+                            <li><strong>Work:</strong> 25 minutes</li>
+                            <li><strong>Break:</strong> 5 minutes</li>
+                            <li>After 4 sessions, take a longer break (15–30 minutes).</li>
+                        </ul>
+                        <p>Great for maintaining consistent focus and avoiding burnout.</p>
+                    </div>
+                    <div class="technique-timer">
+                        <div class="timer-display">25:00</div>
+                        <div class="timer-controls">
+                            <button class="timer-start"><i class="fas fa-play"></i></button>
+                            <button class="timer-pause"><i class="fas fa-pause"></i></button>
+                            <button class="timer-reset"><i class="fas fa-redo"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="technique" data-timer-id="52-17" data-initial-time="3120" data-break-time="1020">
+                    <div class="technique-info">
+                        <h2>52/17 Method <span class="timer-status">(Work)</span></h2>
+                        <ul>
+                            <li>Work for 52 minutes, then take a 17-minute break.</li>
+                        </ul>
+                        <p>Based on research into optimal productivity rhythms.</p>
+                    </div>
+                    <div class="technique-timer">
+                        <div class="timer-display">52:00</div>
+                        <div class="timer-controls">
+                            <button class="timer-start"><i class="fas fa-play"></i></button>
+                            <button class="timer-pause"><i class="fas fa-pause"></i></button>
+                            <button class="timer-reset"><i class="fas fa-redo"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="technique" data-timer-id="ultradian" data-initial-time="5400" data-break-time="1200">
+                    <div class="technique-info">
+                        <h2>Ultradian Rhythm Technique <span class="timer-status">(Work)</span></h2>
+                        <ul>
+                            <li>Work in 90-minute cycles followed by 20-minute breaks.</li>
+                        </ul>
+                        <p>Aligns with natural energy cycles in the body.</p>
+                    </div>
+                    <div class="technique-timer">
+                        <div class="timer-display">90:00</div>
+                        <div class="timer-controls">
+                            <button class="timer-start"><i class="fas fa-play"></i></button>
+                            <button class="timer-pause"><i class="fas fa-pause"></i></button>
+                            <button class="timer-reset"><i class="fas fa-redo"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="music-section" class="content-section" style="display: none;">
+            <h1>Concentration Music</h1>
+
+            <div class="music-nav">
+                <a href="#" class="music-nav-link active" data-music-target="binaural-beats"><i class="fas fa-wave-square"></i> Binaural Beats</a>
+                <a href="#" class="music-nav-link" data-music-target="relaxing-piano"><i class="fas fa-music"></i> Relaxing Piano</a>
+                <a href="#" class="music-nav-link" data-music-target="relaxing-violin"><i class="fas fa-feather-alt"></i> Relaxing Violin</a>
+                <a href="#" class="music-nav-link" data-music-target="custom-mode"><i class="fas fa-edit"></i> Custom Mode</a>
+            </div>
+
+            <div id="binaural-beats" class="music-content">
+                <p>40Hz Binaural Beats for focus and concentration.</p>
+                <div class="video-container">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/1_G60OdEzXs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div id="relaxing-piano" class="music-content" style="display: none;">
+                <p>Beautiful, relaxing piano music for studying and sleeping.</p>
+                <div class="video-container">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/Ou7VhlCciZM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div id="relaxing-violin" class="music-content" style="display: none;">
+                <p>Emotional and relaxing violin music for stress relief.</p>
+                <div class="video-container">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/egnvQEPAxbM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div id="custom-mode" class="music-content" style="display: none;">
+                <p>Paste a YouTube video URL below to create your own custom music session.</p>
+                <form id="custom-music-form">
+                    <input type="text" id="custom-music-input" placeholder="Enter YouTube URL" autocomplete="off">
+                    <button type="submit" id="custom-music-btn">Load Video</button>
+                </form>
+                <div class="video-container" id="custom-video-container">
+                    <!-- Iframe will be inserted here by JS -->
+                </div>
+            </div>
+        </div>
+
+        <div id="stickynotes-section" class="content-section" style="display: none;">
+            <div class="notes-header">
+                <h1>Sticky Notes</h1>
+                <button id="add-note-btn"><i class="fas fa-plus"></i> Add Note</button>
+            </div>
+            <div id="notes-container">
+                <!-- Sticky notes will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Add App Modal -->
+        <div id="add-app-modal" class="app-modal" style="display: none;">
+            <div class="app-modal-content">
+                <button class="app-modal-close">&times;</button>
+                <h2 id="app-modal-title">Add a New App</h2>
+                <form id="add-app-form">
+                    <input type="hidden" id="app-edit-index" value="">
+                    <input type="text" id="app-name-input" placeholder="App Name (e.g., Gmail)" required>
+                    <input type="url" id="app-url-input" placeholder="App URL (e.g., https://mail.google.com)" required>
+                    <button type="submit">Save App</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- AI and Markdown Libraries -->
+    <script src="script.js"></script>
+</body>
+</html>
